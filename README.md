@@ -30,7 +30,7 @@ cd network-impact-analysis
 
 2. Install required Python packages:
 ```bash
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 3. Install required JavaScript libraries (they are loaded via CDN in the HTML):
@@ -49,14 +49,14 @@ pip install requirements.txt
 
 ## Project Structure
 network-impact-analysis/
-├── main_API.py          # Backend API server
-├── main.py             # Web interface server
-├── unified_network_analyzer.py  # Core analysis logic
+├── main_API.py # Backend API server
+├── main.py # Web interface server
+├── unified_network_analyzer.py # Core analysis logic
 ├── static/
-│   ├── style.css       # Stylesheet
-│   └── script.js       # Client-side JavaScript
+│ ├── style.css # Stylesheet
+│ └── script.js # Client-side JavaScript
 ├── templates/
-│   ├── index.html      # Home page template
-│   └── results.html    # Results page template
-├── data/               # Data files directory
-└── README.md           # This file
+│ ├── index.html # Home page template
+│ └── results.html # Results page template
+├── data/ # Data files directory
+└── README.md # This file
