@@ -43,12 +43,44 @@
                 </div>
             </div>
         </div>
+
+        <div class="visualization-legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #4CAF50;"></div>
+                <span class="legend-label">EDGE</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #2196F3;"></div>
+                <span class="legend-label">Distribution</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #FF9800;"></div>
+                <span class="legend-label">BNG</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #9C27B0;"></div>
+                <span class="legend-label">Bitstream</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ff0000;"></div>
+                <span class="legend-label">Failed Node</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ff0000;"></div>
+                <span class="legend-label">Affected Path</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ff9900;"></div>
+                <span class="legend-label">Alternative Path</span>
+            </div>
+        </div>
         
         <div class="tab-container">
             <div class="tab-buttons">
                 <button class="tab-button active" data-tab="we-tab">WE Data</button>
                 <button class="tab-button" data-tab="others-tab">Others Data</button>
                 <button class="tab-button" data-tab="charts-tab">Charts</button>
+                <button class="tab-button" data-tab="topology-tab">Network Topology</button>
             </div>
             
             <div id="we-tab" class="tab-content active">
@@ -198,13 +230,32 @@
                     </div>
                 </div>
             </div>
+
+            <div id="topology-tab" class="tab-content">
+                <div class="section">
+                    <h2 class="section-title">Network Topology Visualization</h2>
+                    <div class="visualization-controls">
+                        <button id="reset-view">Reset View</button>
+                        <button id="zoom-in">Zoom In</button>
+                        <button id="zoom-out">Zoom Out</button>
+                    </div>
+                    <div id="network-topology">
+                        <div id="loading-message" style="text-align: center; padding: 20px;">
+                            Loading network visualization...
+                        </div>
+                        <div id="error-message" style="text-align: center; padding: 20px; color: red; display: none;">
+                            Failed to load network visualization
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="/static/script.js"></script>
     <script>
         // Initialize charts with data from the API response
-        // Replace the entire chart initialization script with this
         document.addEventListener('DOMContentLoaded', function() {
             // Impact distribution chart
             const impactCtx = document.getElementById('impactChart').getContext('2d');
@@ -235,6 +286,29 @@
             // Initialize pagination for each table
             setupPagination('we-table', 50);
             setupPagination('others-table', 50);
+        });
+
+        // Convert Jinja template variables to JavaScript variables with proper fallbacks
+        let weData = [];
+        let othersData = [];
+        let identifier = '';
+        let identifierType = '';
+        
+        try {
+            weData = {{ (we_data.to_dict('records') if we_data is defined and not we_data.empty else []) | tojson | safe }};
+            othersData = {{ (others_data.to_dict('records') if others_data is defined and not others_data.empty else []) | tojson | safe }};
+            identifier = "{{ identifier if identifier is defined else '' }}";
+            identifierType = "{{ identifier_type if identifier_type is defined else '' }}";
+        } catch (e) {
+            console.error("Error loading template data:", e);
+            // Variables already initialized with empty defaults above
+        }
+        
+        console.log("Data loaded:", {
+            weData: weData ? weData.length : 0,
+            othersData: othersData ? othersData.length : 0,
+            identifier: identifier,
+            identifierType: identifierType
         });
     </script>
 </body>
