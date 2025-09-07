@@ -75,7 +75,7 @@
                     </div>
                     
                     <div class="table-container">
-                        <table class="data-table">
+                        <table id="we-table" class="data-table">
                             <thead>
                                 <tr>
                                     <th>MSANCODE</th>
@@ -104,6 +104,12 @@
                     </div>
                     {% else %}
                     <p>No WE data available for this analysis.</p>
+                    <!-- Add this after each table container -->
+                    <div class="pagination-controls">
+                        <button id="prevPage">Previous</button>
+                        <span id="pageInfo">Page 1 of 1</span>
+                        <button id="nextPage">Next</button>
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -132,7 +138,7 @@
                     </div>
                     
                     <div class="table-container">
-                        <table class="data-table">
+                        <table id="others-table" class="data-table">
                             <thead>
                                 <tr>
                                     <th>MSANCODE</th>
@@ -159,6 +165,12 @@
                     </div>
                     {% else %}
                     <p>No Others data available for this analysis.</p>
+                    <!-- Add this after each table container -->
+                    <div class="pagination-controls">
+                        <button id="prevPage">Previous</button>
+                        <span id="pageInfo">Page 1 of 1</span>
+                        <button id="nextPage">Next</button>
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -183,59 +195,37 @@
     <script src="/static/script.js"></script>
     <script>
         // Initialize charts with data from the API response
+        // Replace the entire chart initialization script with this
         document.addEventListener('DOMContentLoaded', function() {
             // Impact distribution chart
             const impactCtx = document.getElementById('impactChart').getContext('2d');
-            const impactChart = new Chart(impactCtx, {
+            
+            // Get real impact data from the results
+            const impactData = {
+                labels: ['Isolated', 'Partially Impacted'],
+                datasets: [{
+                    data: [
+                        {{ result.impact_summary.we.impact_breakdown.Isolated|default(0) + result.impact_summary.others.impact_breakdown.Isolated|default(0) }},
+                        {{ result.impact_summary.we.impact_breakdown['Partially Impacted']|default(0) + result.impact_summary.others.impact_breakdown['Partially Impacted']|default(0) }}
+                    ],
+                    backgroundColor: ['#ff6b6b', '#ffe066']
+                }]
+            };
+            
+            new Chart(impactCtx, {
                 type: 'pie',
-                data: {
-                    labels: ['Isolated', 'Partially Impacted'],
-                    datasets: [{
-                        data: [
-                            {{ result.impact_summary.impact_breakdown.Isolated if result.impact_summary.impact_breakdown and 'Isolated' in result.impact_summary.impact_breakdown else 0 }},
-                            {{ result.impact_summary.impact_breakdown['Partially Impacted'] if result.impact_summary.impact_breakdown and 'Partially Impacted' in result.impact_summary.impact_breakdown else 0 }}
-                        ],
-                        backgroundColor: ['#ff6b6b', '#ffe066']
-                    }]
-                },
+                data: impactData,
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
                     plugins: {
-                        title: {
-                            display: true,
-                            text: 'Impact Distribution'
-                        }
+                        title: { display: true, text: 'Overall Impact Distribution' }
                     }
                 }
             });
             
-            // Status distribution chart
-            const statusCtx = document.getElementById('statusChart').getContext('2d');
-            const statusChart = new Chart(statusCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['UP', 'ST'],
-                    datasets: [{
-                        label: 'Status Distribution',
-                        data: [
-                            {{ result.impact_summary.status_breakdown.UP if result.impact_summary.status_breakdown and 'UP' in result.impact_summary.status_breakdown else 0 }},
-                            {{ result.impact_summary.status_breakdown.ST if result.impact_summary.status_breakdown and 'ST' in result.impact_summary.status_breakdown else 0 }}
-                        ],
-                        backgroundColor: '#4ecdc4'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Status Distribution'
-                        }
-                    }
-                }
-            });
+            // Initialize pagination for each table
+            setupPagination('we-table', 50);
+            setupPagination('others-table', 50);
         });
     </script>
 </body>

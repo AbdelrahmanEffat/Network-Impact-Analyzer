@@ -48,12 +48,13 @@ async def startup_event():
     try:
         logger.info("Loading CSV files...")
         
+        data_path = r"C:\Users\secre\OneDrive\Desktop\network-impact-web\endpoint\data"
         # Load your CSV files
-        df_report_we = pd.read_csv('Report(11).csv')  # WE data
-        df_report_others = pd.read_csv('Report(12).csv')  # Others data
-        df_res_ospf = pd.read_csv('res_ospf.csv')
-        df_wan = pd.read_csv('wan.csv')
-        df_agg = pd.read_csv('agg.csv')
+        df_report_we = pd.read_csv(f'{data_path}\\Report(11).csv')  # WE data
+        df_report_others = pd.read_csv(f'{data_path}\\Report(12).csv')  # Others data
+        df_res_ospf = pd.read_csv(f'{data_path}\\res_ospf.csv')
+        df_wan = pd.read_csv(f'{data_path}\\wan.csv')
+        df_agg = pd.read_csv(f'{data_path}\\agg.csv')
         
         # Initialize analyzers for both data types
         we_analyzer = UnifiedNetworkImpactAnalyzer(df_report_we, df_res_ospf, df_wan, df_agg)
@@ -262,6 +263,32 @@ def _create_impact_summary(results_df):
         summary["circuit_type_breakdown"] = cir_type_counts
     
     return summary
+
+
+# Added, detailed results in the response:
+@app.post("/analyze/detailed")
+async def analyze_network_impact_detailed(request: AnalysisRequest):
+    """Get detailed analysis results including full data"""
+    if we_analyzer is None or others_analyzer is None:
+        raise HTTPException(status_code=503, detail="Service not ready")
+    
+    try:
+        # Run analysis
+        we_results = we_analyzer.run_complete_analysis(request.identifier, request.identifier_type)
+        others_results = others_analyzer.run_complete_analysis(request.identifier, request.identifier_type)
+
+        # Convert NaN values to None (which becomes null in JSON)
+        we_results_clean = we_results.where(pd.notnull(we_results), None)
+        others_results_clean = others_results.where(pd.notnull(others_results), None)
+        
+        return {
+            "we_results": we_results_clean.to_dict(orient='records'),
+            "others_results": others_results_clean.to_dict(orient='records')
+        }
+    except Exception as e:
+        logger.error(f"Detailed analysis failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Detailed analysis failed: {str(e)}")
+    
 
 if __name__ == "__main__":
     import uvicorn

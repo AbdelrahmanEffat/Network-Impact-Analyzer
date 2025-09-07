@@ -12,7 +12,7 @@ import zipfile
 app = FastAPI(
     title="Network Impact Analysis Web Interface",
     description="Web interface for visualizing network impact analysis results",
-    version="1.0.0"
+    version="1.1.0"
 )
 
 # Mount static files
@@ -141,34 +141,27 @@ async def download_results(identifier: str, identifier_type: str = "auto"):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Download failed: {str(e)}")
 
+# Replaced
 def get_detailed_data(identifier, identifier_type, data_type):
     """Get detailed data from the API"""
     try:
-        # For a real implementation, you would call your API to get the detailed data
-        # This is a placeholder that returns empty DataFrames
+        api_url = f"{API_BASE_URL}/analyze/detailed"
+        response = requests.post(
+            api_url,
+            json={"identifier": identifier, "identifier_type": identifier_type}
+        )
+        
+        if response.status_code != 200:
+            return pd.DataFrame()
+            
+        result = response.json()
         if data_type == "we":
-            # Return sample WE data structure
-            return pd.DataFrame({
-                'MSANCODE': ['MSAN001', 'MSAN002'],
-                'EDGE': ['EDGE001', 'EDGE002'],
-                'distribution_hostname': ['DIST001', 'DIST002'],
-                'BNG_HOSTNAME': ['BNG001', 'BNG002'],
-                'STATUS': ['UP', 'ST'],
-                'CUST': [10, 5],
-                'Impact': ['Isolated', 'Partially Impacted']
-            })
+            return pd.DataFrame(result['we_results'])
         else:
-            # Return sample Others data structure
-            return pd.DataFrame({
-                'MSANCODE': ['MSAN003', 'MSAN004'],
-                'EDGE': ['EDGE003', 'EDGE004'],
-                'BITSTREAM_HOSTNAME': ['BIT001', 'BIT002'],
-                'SERVICE': ['Service1', 'Service2'],
-                'ISP': ['ISP1', 'ISP2'],
-                'Impact': ['Isolated', 'Partially Impacted']
-            })
-    except:
-        # Return empty DataFrame if there's an error
+            return pd.DataFrame(result['others_results'])
+            
+    except Exception as e:
+        print(f"Error getting detailed data: {e}")
         return pd.DataFrame()
 
 if __name__ == "__main__":

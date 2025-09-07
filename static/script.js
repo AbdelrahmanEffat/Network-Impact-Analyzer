@@ -60,3 +60,56 @@ function filterTable(table, filters) {
         row.style.display = showRow ? '' : 'none';
     });
 }
+
+// Add these functions at the end of the file
+function setupPagination(tableId, pageSize = 50) {
+    const table = document.getElementById(tableId);
+    const rows = table.querySelectorAll('tbody tr');
+    const pageCount = Math.ceil(rows.length / pageSize);
+    let currentPage = 1;
+    
+    function showPage(page) {
+        const start = (page - 1) * pageSize;
+        const end = start + pageSize;
+        
+        rows.forEach((row, index) => {
+            row.style.display = (index >= start && index < end) ? '' : 'none';
+        });
+        
+        document.getElementById('pageInfo').textContent = `Page ${page} of ${pageCount}`;
+        currentPage = page;
+    }
+    
+    document.getElementById('prevPage').addEventListener('click', () => {
+        if (currentPage > 1) showPage(currentPage - 1);
+    });
+    
+    document.getElementById('nextPage').addEventListener('click', () => {
+        if (currentPage < pageCount) showPage(currentPage + 1);
+    });
+    
+    showPage(1);
+}
+
+function initializeFiltering() {
+    const tables = document.querySelectorAll('.data-table');
+    
+    tables.forEach(table => {
+        const filters = table.previousElementSibling.querySelectorAll('input');
+        const rows = table.querySelectorAll('tbody tr');
+        
+        filters.forEach(filter => {
+            filter.addEventListener('input', function() {
+                const columnIndex = parseInt(this.dataset.column);
+                const filterValue = this.value.toLowerCase();
+                
+                rows.forEach(row => {
+                    const cell = row.cells[columnIndex];
+                    const cellValue = cell.textContent.toLowerCase();
+                    const matches = cellValue.includes(filterValue);
+                    row.style.display = matches ? '' : 'none';
+                });
+            });
+        });
+    });
+}
