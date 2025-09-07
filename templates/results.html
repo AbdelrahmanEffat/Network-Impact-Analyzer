@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results - Network Impact Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Network Impact Analysis Results</h1>
+            <p>Results for {{ identifier }} ({{ identifier_type }})</p>
+            <p>Generated at: {{ generated_at }}</p>
+            
+            <div class="action-buttons">
+                <a href="/" class="btn-secondary">New Analysis</a>
+                <a href="/download?identifier={{ identifier }}&identifier_type={{ identifier_type }}" 
+                   class="btn-primary">Download Results</a>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Overall Impact Summary</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">{{ result.total_records }}</div>
+                    <div class="stat-label">Total Records</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ result.unique_msans }}</div>
+                    <div class="stat-label">Unique MSANs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ result.execution_time_seconds }}s</div>
+                    <div class="stat-label">Execution Time</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ result.analysis_type }}</div>
+                    <div class="stat-label">Analysis Type</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="we-tab">WE Data</button>
+                <button class="tab-button" data-tab="others-tab">Others Data</button>
+                <button class="tab-button" data-tab="charts-tab">Charts</button>
+            </div>
+            
+            <div id="we-tab" class="tab-content active">
+                <div class="section">
+                    <h2 class="section-title">WE Data Details</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">{{ we_data|length if we_data is defined else 0 }}</div>
+                            <div class="stat-label">Total Records</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">{{ we_data.MSANCODE.nunique() if we_data is defined and 'MSANCODE' in we_data else 0 }}</div>
+                            <div class="stat-label">Unique MSANs</div>
+                        </div>
+                    </div>
+                    
+                    {% if we_data is defined and not we_data.empty %}
+                    <div class="filter-controls">
+                        <input type="text" placeholder="Filter MSANCODE" data-column="0">
+                        <input type="text" placeholder="Filter EDGE" data-column="1">
+                        <input type="text" placeholder="Filter Status" data-column="4">
+                        <input type="text" placeholder="Filter Impact" data-column="6">
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>MSANCODE</th>
+                                    <th>EDGE</th>
+                                    <th>Distribution Hostname</th>
+                                    <th>BNG Hostname</th>
+                                    <th>Status</th>
+                                    <th>Customer Count</th>
+                                    <th>Impact</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in we_data.to_dict('records') %}
+                                <tr class="impact-{{ record.Impact.lower().replace(' ', '-') if record.Impact else 'unknown' }}">
+                                    <td>{{ record.MSANCODE }}</td>
+                                    <td>{{ record.EDGE }}</td>
+                                    <td>{{ record.distribution_hostname }}</td>
+                                    <td>{{ record.BNG_HOSTNAME }}</td>
+                                    <td>{{ record.STATUS }}</td>
+                                    <td>{{ record.CUST }}</td>
+                                    <td>{{ record.Impact }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p>No WE data available for this analysis.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div id="others-tab" class="tab-content">
+                <div class="section">
+                    <h2 class="section-title">Others Data Details</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">{{ others_data|length if others_data is defined else 0 }}</div>
+                            <div class="stat-label">Total Records</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">{{ others_data.MSANCODE.nunique() if others_data is defined and 'MSANCODE' in others_data else 0 }}</div>
+                            <div class="stat-label">Unique MSANs</div>
+                        </div>
+                    </div>
+                    
+                    {% if others_data is defined and not others_data.empty %}
+                    <div class="filter-controls">
+                        <input type="text" placeholder="Filter MSANCODE" data-column="0">
+                        <input type="text" placeholder="Filter EDGE" data-column="1">
+                        <input type="text" placeholder="Filter ISP" data-column="4">
+                        <input type="text" placeholder="Filter Impact" data-column="5">
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>MSANCODE</th>
+                                    <th>EDGE</th>
+                                    <th>Bitstream Hostname</th>
+                                    <th>Service</th>
+                                    <th>ISP</th>
+                                    <th>Impact</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in others_data.to_dict('records') %}
+                                <tr class="impact-{{ record.Impact.lower().replace(' ', '-') if record.Impact else 'unknown' }}">
+                                    <td>{{ record.MSANCODE }}</td>
+                                    <td>{{ record.EDGE }}</td>
+                                    <td>{{ record.BITSTREAM_HOSTNAME }}</td>
+                                    <td>{{ record.SERVICE }}</td>
+                                    <td>{{ record.ISP }}</td>
+                                    <td>{{ record.Impact }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p>No Others data available for this analysis.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div id="charts-tab" class="tab-content">
+                <div class="section">
+                    <h2 class="section-title">Impact Visualization</h2>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="chart-container">
+                            <canvas id="impactChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/static/script.js"></script>
+    <script>
+        // Initialize charts with data from the API response
+        document.addEventListener('DOMContentLoaded', function() {
+            // Impact distribution chart
+            const impactCtx = document.getElementById('impactChart').getContext('2d');
+            const impactChart = new Chart(impactCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Isolated', 'Partially Impacted'],
+                    datasets: [{
+                        data: [
+                            {{ result.impact_summary.impact_breakdown.Isolated if result.impact_summary.impact_breakdown and 'Isolated' in result.impact_summary.impact_breakdown else 0 }},
+                            {{ result.impact_summary.impact_breakdown['Partially Impacted'] if result.impact_summary.impact_breakdown and 'Partially Impacted' in result.impact_summary.impact_breakdown else 0 }}
+                        ],
+                        backgroundColor: ['#ff6b6b', '#ffe066']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Impact Distribution'
+                        }
+                    }
+                }
+            });
+            
+            // Status distribution chart
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            const statusChart = new Chart(statusCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['UP', 'ST'],
+                    datasets: [{
+                        label: 'Status Distribution',
+                        data: [
+                            {{ result.impact_summary.status_breakdown.UP if result.impact_summary.status_breakdown and 'UP' in result.impact_summary.status_breakdown else 0 }},
+                            {{ result.impact_summary.status_breakdown.ST if result.impact_summary.status_breakdown and 'ST' in result.impact_summary.status_breakdown else 0 }}
+                        ],
+                        backgroundColor: '#4ecdc4'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Status Distribution'
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
