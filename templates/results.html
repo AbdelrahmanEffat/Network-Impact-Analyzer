@@ -68,10 +68,11 @@
                     
                     {% if we_data is defined and not we_data.empty %}
                     <div class="filter-controls">
-                        <input type="text" placeholder="Filter MSANCODE" data-column="0">
-                        <input type="text" placeholder="Filter EDGE" data-column="1">
-                        <input type="text" placeholder="Filter Status" data-column="4">
-                        <input type="text" placeholder="Filter Impact" data-column="6">
+                        <input type="text" placeholder="Filter MSANCODE" class="filter-input" data-column="0">
+                        <input type="text" placeholder="Filter EDGE" class="filter-input" data-column="1">
+                        <input type="text" placeholder="Filter Distribution" class="filter-input" data-column="2">
+                        <input type="text" placeholder="Filter BNG" class="filter-input" data-column="3">
+                        <input type="text" placeholder="Filter Impact" class="filter-input" data-column="6">
                     </div>
                     
                     <div class="table-container">
@@ -85,6 +86,9 @@
                                     <th>Status</th>
                                     <th>Customer Count</th>
                                     <th>Impact</th>
+                                    <th>cir_type</th>
+                                    <th>Path</th>
+                                    <th>Path2</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -97,6 +101,9 @@
                                     <td>{{ record.STATUS }}</td>
                                     <td>{{ record.CUST }}</td>
                                     <td>{{ record.Impact }}</td>
+                                    <td>{{ record.cir_type }}</td>
+                                    <td>{{ record.Path }}</td>
+                                    <td>{{ record.Path2 }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -131,10 +138,10 @@
                     
                     {% if others_data is defined and not others_data.empty %}
                     <div class="filter-controls">
-                        <input type="text" placeholder="Filter MSANCODE" data-column="0">
-                        <input type="text" placeholder="Filter EDGE" data-column="1">
-                        <input type="text" placeholder="Filter ISP" data-column="4">
-                        <input type="text" placeholder="Filter Impact" data-column="5">
+                        <input type="text" placeholder="Filter MSANCODE" class="filter-input" data-column="0">
+                        <input type="text" placeholder="Filter EDGE" class="filter-input" data-column="1">
+                        <input type="text" placeholder="Filter Bitstream" class="filter-input" data-column="2">
+                        <input type="text" placeholder="Filter Impact" class="filter-input" data-column="5">
                     </div>
                     
                     <div class="table-container">
@@ -147,6 +154,7 @@
                                     <th>Service</th>
                                     <th>ISP</th>
                                     <th>Impact</th>
+                                    <th>Path</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -158,6 +166,7 @@
                                     <td>{{ record.SERVICE }}</td>
                                     <td>{{ record.ISP }}</td>
                                     <td>{{ record.Impact }}</td>
+                                    <td>{{ record.Path }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

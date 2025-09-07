@@ -2,12 +2,14 @@ from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import Response, StreamingResponse # Download Issue
 import requests
 import pandas as pd
 import json
 from datetime import datetime
 import io
 import zipfile
+
 
 app = FastAPI(
     title="Network Impact Analysis Web Interface",
@@ -97,7 +99,7 @@ async def api_analyze_network_impact(identifier: str, identifier_type: str = "au
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
-@app.post("/download")
+@app.get("/download")
 async def download_results(identifier: str, identifier_type: str = "auto"):
     """Download analysis results as CSV"""
     try:
