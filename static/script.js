@@ -13,6 +13,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Network Topology
     initializeNetworkVisualization();
+
+    // Tab switching functionality (update existing code)
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const targetTab = this.getAttribute('data-tab');
+            
+            // Remove active class from all buttons and contents
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Add active class to clicked button and corresponding content
+            this.classList.add('active');
+            document.getElementById(targetTab).classList.add('active');
+            
+            // Special handling for dashboard tab
+            if (targetTab === 'dashboard-tab') {
+                // Trigger dashboard rendering if data is available
+                if (window.networkDashboard && weData) {
+                    // Small delay to ensure DOM is ready
+                    setTimeout(() => {
+                        window.networkDashboard.renderDashboard();
+                    }, 100);
+                }
+            }
+        });
+    });
 });
 
 function setupTabs() {

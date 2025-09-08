@@ -10,6 +10,7 @@ The Network Impact Analysis Tool is a web-based application that analyzes the im
 - Impact summary statistics and charts
 - Export functionality for analysis results
 - Support for both WE and Others network data types
+- Network Path Impact Analysis Dashboard
 
 ## Data Requirements
 Place the following CSV files in the data directory:
@@ -48,15 +49,19 @@ pip install -r requirements.txt
     http://localhost:8001
 
 ## Project Structure
+```bash
 network-impact-analysis/
 ├── main_API.py # Backend API server
 ├── main.py # Web interface server
 ├── unified_network_analyzer.py # Core analysis logic
 ├── static/
 │ ├── style.css # Stylesheet
-│ └── script.js # Client-side JavaScript
+│ ├── script.js # Client-side JavaScript
+│ ├── dashboard.css # Dshboard Stylesheet
+│ └── dashboard.js # Dashboard JavaScript
 ├── templates/
 │ ├── index.html # Home page template
 │ └── results.html # Results page template
 ├── data/ # Data files directory
 └── README.md # This file
+```
